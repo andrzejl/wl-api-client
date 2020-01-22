@@ -1,0 +1,40 @@
+{
+    "name": "andrzejl/wl-api-client",
+    "description": "Wl API client",
+    "type": "library",
+    "keywords": [
+    ],
+    "require": {
+        "psr/http-message": "^1.0",
+        "php-http/client-implementation": "^1.0",
+        "php-http/httplug": "^1.0",
+        "php-http/message-factory": "^1.0",
+        "php-http/discovery": "^1.0"
+    },
+    "require-dev": {
+        "php-http/mock-client": "^1.0",
+        "php-http/message": "^1.0",
+        "guzzlehttp/psr7": "^1.0",
+        "phpunit/phpunit": "^8"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Andrzej Lis",
+            "email": "andrzej.lis@polcode.net"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Andrzejl\\WlApi\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit --colors=always"
+    }
+}
