@@ -256,7 +256,7 @@ class Client
      *
      * @param string $accountNumber
      */
-    public function searchBankAccount(string $accountNumber)
+    public function searchBankAccount($accountNumber)
     {
         return $this->sendRequest(self::API_SEARCH_BANK_ACCOUNT, ['bank-account' => $accountNumber]);
     }
@@ -266,7 +266,7 @@ class Client
      *
      * @param array $accountNumbers
      */
-    public function searchBankAccounts(array $accountNumbers)
+    public function searchBankAccounts($accountNumbers)
     {
         return $this->sendSplittedRequest(self::API_SEARCH_BANK_ACCOUNTS, 'bank-accounts', $accountNumbers);
     }
@@ -277,7 +277,7 @@ class Client
      * @param string $nip
      * @param string $accountNumber
      */
-    public function checkNipAndBankAccount(string $nip, string $accountNumber)
+    public function checkNipAndBankAccount($nip, $accountNumber)
     {
         return $this->sendRequest(self::API_CHECK_NIP_AND_BANK_ACCOUNT, ['nip' => $nip, 'bank-account' => $accountNumber]);
     }
@@ -288,7 +288,7 @@ class Client
      * @param string $regon
      * @param string $accountNumber
      */
-    public function checkRegonAndBankAccount(string $regon, string $accountNumber)
+    public function checkRegonAndBankAccount($regon, $accountNumber)
     {
         return $this->sendRequest(self::API_CHECK_REGON_AND_BANK_ACCOUNT, ['regon' => $regon, 'bank-account' => $accountNumber]);
     }
@@ -298,7 +298,7 @@ class Client
      *
      * @param string $nip
      */
-    public function searchNip(string $nip)
+    public function searchNip($nip)
     {
         return $this->sendRequest(self::API_SEARCH_NIP, ['nip' => $nip]);
     }
@@ -308,7 +308,7 @@ class Client
      *
      * @param array $nips
      */
-    public function searchNips(array $nips)
+    public function searchNips($nips)
     {
         return $this->sendRequest(self::API_SEARCH_NIPS, ['nips' => $nips]);
     }
@@ -318,7 +318,7 @@ class Client
      *
      * @param string $regon
      */
-    public function searchRegon(string $regon)
+    public function searchRegon($regon)
     {
         return $this->sendRequest(self::API_SEARCH_REGON, ['regon' => $regon]);
     }
@@ -328,7 +328,7 @@ class Client
      *
      * @param array $regons
      */
-    public function searchRegons(array $regons)
+    public function searchRegons($regons)
     {
         return $this->sendRequest(self::API_SEARCH_REGONS, ['regons' => $regons]);
     }
