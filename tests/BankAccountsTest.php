@@ -6,6 +6,7 @@ namespace Tests;
 
 use Andrzejl\WlApi\Client as ApiClient;
 use Andrzejl\WlApi\Exceptions\IncorrectResponse;
+use Andrzejl\WlApi\Exceptions\LimitExceeded;
 use Psr\Http\Message\RequestInterface;
 
 class BankAccountsTest extends MockHttpClientTestCase
@@ -50,6 +51,14 @@ class BankAccountsTest extends MockHttpClientTestCase
         $apiClient->searchBankAccounts(['90249000050247256316596736']);
     }
 
+    public function testLimitExceededException()
+    {
+        $httpClient = $this->prepareHttpClientWithSubjectResponse(null, 429);
+        $apiClient = new ApiClient($httpClient);
+        $this->expectException(LimitExceeded::class);
+        $apiClient->searchBankAccounts(['90249000050247256316596736']);
+    }
+
     public function testSplittedRequest()
     {
         $rawDataFirst = $this->prepareSubjectRawResponse(30, false);
@@ -71,5 +80,33 @@ class BankAccountsTest extends MockHttpClientTestCase
         $this->assertSame('GET', $requests[1]->getMethod(), 'Wrong reuqest method');
         $this->assertSame('https://wl-api.mf.gov.pl/api/search/bank-accounts/31?date=' . (new \DateTime('now'))->format('Y-m-d'), $requests[1]->getUri()->__toString(), 'Incorrect URI');
         $this->assertSame(json_decode($rawDataCombined, true)['result']['subjects'], $result, 'Incorrect response data');
+    }
+
+    public function testSplittedParitalResult()
+    {
+        $rawDataFirst = $this->prepareSubjectRawResponse(30, false);
+        $rawDataSecond = $this->prepareSubjectRawResponse(1, false);
+        $httpClient = $this->prepareHttpClientWithSubjectResponse(
+            [
+                ['responseCode' => 200, 'rawData' => $rawDataFirst],
+                ['responseCode' => 429, 'rawData' => $rawDataSecond],
+            ]
+        );
+        $apiClient = new ApiClient($httpClient);
+        try {
+            $result = $apiClient->searchBankAccounts(range(1, 31));
+            $this->fail('Doesn\'t throw LimitExceeded exception');
+        } catch (LimitExceeded $e) {
+            $result = $apiClient->getLastResult();
+        }
+
+        /** @var RequestInterface $request */
+        $requests = $httpClient->getRequests();
+
+        $this->assertSame('GET', $requests[0]->getMethod(), 'Wrong reuqest method');
+        $this->assertSame('https://wl-api.mf.gov.pl/api/search/bank-accounts/' . (implode(',', range(1, 30))) . '?date=' . (new \DateTime('now'))->format('Y-m-d'), $requests[0]->getUri()->__toString(), 'Incorrect URI');
+        $this->assertSame('GET', $requests[1]->getMethod(), 'Wrong reuqest method');
+        $this->assertSame('https://wl-api.mf.gov.pl/api/search/bank-accounts/31?date=' . (new \DateTime('now'))->format('Y-m-d'), $requests[1]->getUri()->__toString(), 'Incorrect URI');
+        $this->assertSame(json_decode($rawDataFirst, true)['result']['subjects'], $result, 'Incorrect response data');
     }
 }

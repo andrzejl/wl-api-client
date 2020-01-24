@@ -4,6 +4,7 @@ namespace Andrzejl\WlApi;
 
 use Andrzejl\WlApi\Exceptions\IncorrectParameter;
 use Andrzejl\WlApi\Exceptions\IncorrectResponse;
+use Andrzejl\WlApi\Exceptions\LimitExceeded;
 use Http\Client\HttpClient;
 use Http\Discovery\HttpClientDiscovery;
 use Http\Discovery\MessageFactoryDiscovery;
@@ -121,6 +122,11 @@ class Client
     protected $messageFactory;
 
     /**
+     * @var array
+     */
+    protected $lastResult = [];
+
+    /**
      * @param HttpClient $client
      * @param MessageFactory $messageFactory
      */
@@ -191,6 +197,9 @@ class Client
 
         $request = $this->messageFactory->createRequest($options['method'], $url);
         $response = $this->client->sendRequest($request);
+        if ($response->getStatusCode() === 429) {
+            throw new LimitExceeded;
+        }
         if ($response->getStatusCode() !== 200) {
             throw new IncorrectResponse;
         }
@@ -231,6 +240,7 @@ class Client
                 break;
         }
 
+        $this->lastResult = $result;
         return $result;
     }
 
@@ -245,9 +255,11 @@ class Client
         $result = [];
         $splittedValues = array_chunk($values, $this->maxQueryItems);
         foreach ($splittedValues as $valuesChunk) {
+            $this->lastResult = $result;
             $result = array_merge($result, $this->sendRequest($type, [$parameterName => $valuesChunk]));
         }
 
+        $this->lastResult = $result;
         return $result;
     }
 
@@ -331,5 +343,13 @@ class Client
     public function searchRegons($regons)
     {
         return $this->sendRequest(self::API_SEARCH_REGONS, ['regons' => $regons]);
+    }
+
+    /**
+     * Returns last result
+     */
+    public function getLastResult()
+    {
+        return $this->lastResult;
     }
 }
