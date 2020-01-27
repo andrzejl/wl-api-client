@@ -25,6 +25,13 @@ $client = new Client;
 $result = $client->searchBankAccounts(['70506405335016096312945164']);
 ```
 
+## Limits
+WL API is limited. Search methods may be used 10 times with maximum of 30 elements in query per day. Queries above limit throws `LimitExceeded` exception.
+
+Search query is splitted when more than 30 elements is passed.
+
+Check methods also have limit to 10 request per day and the limit is shared with search methods.
+
 ## Testing
 ```bash
 composer test
