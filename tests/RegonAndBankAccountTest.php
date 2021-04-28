@@ -15,6 +15,8 @@ class RegonAndBankAccountTest extends MockHttpClientTestCase
     public function testSuccessYesRequest()
     {
         $rawData = $this->prepareAssignedRawResponse(true);
+        $expected = true;
+
         $httpClient = $this->prepareHttpClientWithSubjectResponse($rawData, 200);
         $apiClient = new ApiClient($httpClient);
         $result = $apiClient->checkRegonAndBankAccount('123456785', '90249000050247256316596736');
@@ -24,12 +26,14 @@ class RegonAndBankAccountTest extends MockHttpClientTestCase
 
         $this->assertSame('GET', $request->getMethod(), 'Wrong reuqest method');
         $this->assertSame('https://wl-api.mf.gov.pl/api/check/regon/123456785/bank-account/90249000050247256316596736?date=' . (new \DateTime('now'))->format('Y-m-d'), $request->getUri()->__toString(), 'Incorrect URI');
-        $this->assertSame(true, $result, 'Incorrect response data');
+        $this->assertSame($expected, $result, 'Incorrect response data');
     }
 
     public function testSuccessNoRequest()
     {
         $rawData = $this->prepareAssignedRawResponse(false);
+        $expected = false;
+
         $httpClient = $this->prepareHttpClientWithSubjectResponse($rawData, 200);
         $apiClient = new ApiClient($httpClient);
         $result = $apiClient->checkRegonAndBankAccount('123456785', '90249000050247256316596736');
@@ -39,7 +43,7 @@ class RegonAndBankAccountTest extends MockHttpClientTestCase
 
         $this->assertSame('GET', $request->getMethod(), 'Wrong reuqest method');
         $this->assertSame('https://wl-api.mf.gov.pl/api/check/regon/123456785/bank-account/90249000050247256316596736?date=' . (new \DateTime('now'))->format('Y-m-d'), $request->getUri()->__toString(), 'Incorrect URI');
-        $this->assertSame(false, $result, 'Incorrect response data');
+        $this->assertSame($expected, $result, 'Incorrect response data');
     }
 
     public function testRequestException()

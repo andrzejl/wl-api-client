@@ -14,7 +14,9 @@ class RegonsTest extends MockHttpClientTestCase
 
     public function testSuccessRequest()
     {
-        $rawData = $this->prepareSubjectRawResponse(2, false);
+        $rawData = $this->prepareSubjectRawResponse(ApiResponseType::TYPE_ENTRIES, 2, 2);
+        $expected = json_decode($this->prepareSubjectRawResponse(ApiResponseType::TYPE_SUBJECTS, 4), true)['result']['subjects'];
+
         $httpClient = $this->prepareHttpClientWithSubjectResponse($rawData, 200);
         $apiClient = new ApiClient($httpClient);
         $result = $apiClient->searchRegons(['123456785']);
@@ -24,12 +26,14 @@ class RegonsTest extends MockHttpClientTestCase
 
         $this->assertSame('GET', $request->getMethod(), 'Wrong reuqest method');
         $this->assertSame('https://wl-api.mf.gov.pl/api/search/regons/123456785?date=' . (new \DateTime('now'))->format('Y-m-d'), $request->getUri()->__toString(), 'Incorrect URI');
-        $this->assertSame(json_decode($rawData, true)['result']['subjects'], $result, 'Incorrect response data');
+        $this->assertSame($expected, $result, 'Incorrect response data');
     }
 
     public function testEmptyRequest()
     {
-        $rawData = $this->prepareSubjectRawResponse(0, false);
+        $rawData = $this->prepareSubjectRawResponse(ApiResponseType::TYPE_ENTRIES, 0, 0);
+        $expected = [];
+
         $httpClient = $this->prepareHttpClientWithSubjectResponse($rawData, 200);
         $apiClient = new ApiClient($httpClient);
         $result = $apiClient->searchRegons(['123456785']);
@@ -39,7 +43,7 @@ class RegonsTest extends MockHttpClientTestCase
 
         $this->assertSame('GET', $request->getMethod(), 'Wrong reuqest method');
         $this->assertSame('https://wl-api.mf.gov.pl/api/search/regons/123456785?date=' . (new \DateTime('now'))->format('Y-m-d'), $request->getUri()->__toString(), 'Incorrect URI');
-        $this->assertSame([], $result, 'Incorrect response data');
+        $this->assertSame($expected, $result, 'Incorrect response data');
     }
 
     public function testRequestException()
