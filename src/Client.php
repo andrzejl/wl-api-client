@@ -24,6 +24,7 @@ class Client
 
     const TYPE_STRING = 'string';
     const TYPE_ARRAY = 'array';
+    const TYPE_ARRAY_ARRAY = 'array_array';
     const TYPE_BOOLEAN = 'boolean';
     const TYPE_OBJECT = 'object';
 
@@ -42,8 +43,9 @@ class Client
         self::API_SEARCH_BANK_ACCOUNTS => [
             'method' => 'GET',
             'path' => '/api/search/bank-accounts/{bank-accounts}',
-            'response' => 'subjects',
-            'type' => self::TYPE_ARRAY,
+            'response' => 'entries',
+            'result' => 'subjects',
+            'type' => self::TYPE_ARRAY_ARRAY,
         ],
         self::API_CHECK_NIP_AND_BANK_ACCOUNT => [
             'method' => 'GET',
@@ -66,8 +68,9 @@ class Client
         self::API_SEARCH_NIPS => [
             'method' => 'GET',
             'path' => '/api/search/nips/{nips}',
-            'response' => 'subjects',
-            'type' => self::TYPE_ARRAY,
+            'response' => 'entries',
+            'result' => 'subjects',
+            'type' => self::TYPE_ARRAY_ARRAY,
         ],
         self::API_SEARCH_REGON => [
             'method' => 'GET',
@@ -78,8 +81,9 @@ class Client
         self::API_SEARCH_REGONS => [
             'method' => 'GET',
             'path' => '/api/search/regons/{regons}',
-            'response' => 'subjects',
-            'type' => self::TYPE_ARRAY,
+            'response' => 'entries',
+            'result' => 'subjects',
+            'type' => self::TYPE_ARRAY_ARRAY,
         ],
     ];
 
@@ -237,6 +241,19 @@ class Client
 
             case self::TYPE_STRING:
                 $result = $value;
+                break;
+
+            case self::TYPE_ARRAY_ARRAY:
+                if (!is_array($value)) {
+                    throw new IncorrectResponse;
+                }
+                $result = [];
+                foreach ($value as $entry) {
+                    if (!is_array($entry[$options['result']])) {
+                        throw new IncorrectResponse;
+                    }
+                    $result = array_merge($result, $entry[$options['result']]);
+                }
                 break;
         }
 

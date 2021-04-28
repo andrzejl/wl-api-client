@@ -55,31 +55,44 @@ trait ApiResponse
         }
         EOF;
 
+    private $singleEntryRawResponse = '{"identifier":"%identifier%","subjects":[%subjects%]}';
+    private $entriesRawResponse = '{"result":{"entries":[%entries%],"requestId":"82k5c-869124d"}}';
+
     /**
      * Returns raw fake response with subjects for tests.
      *
+     * @param boolean $responseType
      * @param integer $subjectsCount
-     * @param boolean $isSingle
+     * @param integer $entriesCount
      */
-    public function prepareSubjectRawResponse($subjectsCount, $isSingle = false)
+    public function prepareSubjectRawResponse($responseType = ApiResponseType::TYPE_SINGLE, $subjectsCount = 1, $entriesCount = 0)
     {
-        if ($isSingle && ($subjectsCount > 1)) {
+        if ((ApiResponseType::TYPE_SINGLE === $responseType) && ($subjectsCount > 1)) {
             $subjectsCount = 1;
         }
 
-        $subjects = '';
-        for ($idx = 0; $idx < $subjectsCount; $idx++) {
-            if ($idx) {
-                $subjects .= ",\n";
-            }
-            $subjects .= $this->singleSubjectRecord;
-        }
+        $subjects = $this->prepareMultipleRecords($subjectsCount, $this->singleSubjectRecord);
+        $entries = $this->prepareMultipleRecords($entriesCount, $this->singleEntryRawResponse);
 
-        if ($isSingle) {
+        if (ApiResponseType::TYPE_SINGLE === $responseType) {
             return str_replace('%subject%', $subjects, $this->singleSubjectRawResponse);
-        } else {
+        } elseif (ApiResponseType::TYPE_SUBJECTS === $responseType) {
             return str_replace('%subjects%', $subjects, $this->multiSubjectRawResponse);
+        } else {
+            return str_replace(['%entries%', '%subjects%', '%identifier%'], [$entries, $subjects, 'none'], $this->entriesRawResponse);
         }
+    }
+
+    private function prepareMultipleRecords($count, $record)
+    {
+        $response = '';
+        for ($idx = 0; $idx < $count; $idx++) {
+            if ($idx) {
+                $response .= ",\n";
+            }
+            $response .= $record;
+        }
+        return $response;
     }
 
     /**
